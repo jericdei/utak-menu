@@ -1,0 +1,22 @@
+name: utak-menu
+
+services:
+    app:
+        container_name: utak-menu-app
+        image: oven/bun:1.1-alpine
+        ports:
+            - 5173
+        volumes:
+            - .:/app
+        working_dir: /app
+        command: bun dev
+        labels:
+            - traefik.docker.network=dei
+            - traefik.http.services.utak.loadbalancer.server.port=5173
+            - traefik.http.routers.utak.rule=Host(`utak.localhost`)
+        networks:
+            - dei
+
+networks:
+    dei:
+        external: true
