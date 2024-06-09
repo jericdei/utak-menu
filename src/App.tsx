@@ -7,7 +7,7 @@ import { Button } from './components/ui/button';
 
 export default function App() {
     const { products, getProducts } = useProductStore((state) => state);
-    const { setOpen, setProduct, product } = useProductFormStore(
+    const { setOpen, setProduct } = useProductFormStore(
         (state) => state,
     );
     const [loading, setLoading] = useState(false);
