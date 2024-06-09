@@ -1,47 +1,49 @@
-import { get, ref, set } from 'firebase/database';
+import { get, ref } from 'firebase/database';
 import { db } from './firebase';
 import { useEffect, useState } from 'react';
-import ProductDialog from './components/product-dialog';
+import ProductDialog from './components/product-dialog-form';
+import ProductList from './components/product-list';
+import { Product } from '.';
+import SkeletonCards from './components/skeleton-cards';
 
 export default function App() {
-    const [menuItems, setMenuItems] = useState({});
+    const [menuItems, setMenuItems] = useState<Record<string, Product>>({});
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const getData = async () => {
-        const res = await get(ref(db, 'menuItems'));
+        setLoading(true);
 
+        const res = await get(ref(db, 'menuItems'));
         setMenuItems(res.val());
+
+        setLoading(false);
     };
 
     useEffect(() => {
         getData();
     }, []);
 
-    async function saveMenuItems() {
-        const data = {
-            foo: 'bar',
-        };
-
-        const id = Math.random().toString(36).substring(2, 9);
-
-        await set(ref(db, `menuItems/${id}`), data);
-
-        await getData();
-    }
-
     return (
         <main className="flex min-h-screen w-screen p-16">
             <div className="container w-5/6">
-                <div className="flex justify-end">
-                    <ProductDialog />
+                <div className="flex items-center justify-between">
+                    <h1 className="text-3xl font-bold">Your Menu</h1>
+
+                    <ProductDialog
+                        open={dialogOpen}
+                        setOpen={setDialogOpen}
+                        onClose={getData}
+                    />
                 </div>
 
-                <div className="mt-16">
-                    {menuItems ? (
-                        JSON.stringify(menuItems)
-                    ) : (
-                        <div>Loading...</div>
-                    )}
-                </div>
+                {loading ? (
+                    <SkeletonCards length={8} />
+                ) : !menuItems ? (
+                    <p className="p-16 text-center">No menu items.</p>
+                ) : (
+                    <ProductList products={menuItems} />
+                )}
             </div>
         </main>
     );
