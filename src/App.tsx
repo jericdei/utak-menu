@@ -1,39 +1,48 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import { get, ref, set } from 'firebase/database';
+import { db } from './firebase';
+import { useEffect, useState } from 'react';
+import ProductDialog from './components/product-dialog';
 
-function App() {
-    const [count, setCount] = useState(0);
+export default function App() {
+    const [menuItems, setMenuItems] = useState({});
+
+    const getData = async () => {
+        const res = await get(ref(db, 'menuItems'));
+
+        setMenuItems(res.val());
+    };
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    async function saveMenuItems() {
+        const data = {
+            foo: 'bar',
+        };
+
+        const id = Math.random().toString(36).substring(2, 9);
+
+        await set(ref(db, `menuItems/${id}`), data);
+
+        await getData();
+    }
 
     return (
-        <>
-            <div>
-                <a href="https://vitejs.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img
-                        src={reactLogo}
-                        className="logo react"
-                        alt="React logo"
-                    />
-                </a>
+        <main className="flex min-h-screen w-screen p-16">
+            <div className="container w-5/6">
+                <div className="flex justify-end">
+                    <ProductDialog />
+                </div>
+
+                <div className="mt-16">
+                    {menuItems ? (
+                        JSON.stringify(menuItems)
+                    ) : (
+                        <div>Loading...</div>
+                    )}
+                </div>
             </div>
-            <h1>Vite + React</h1>
-            <div className="card">
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
-                </button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
-        </>
+        </main>
     );
 }
-
-export default App;
