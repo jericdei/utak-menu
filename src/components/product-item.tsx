@@ -40,18 +40,18 @@ export default function ProductItem({ product }: ProductItemProps) {
                 </p>
             </CardContent>
 
-            <CardFooter className="justify-end space-x-2">
+            <CardFooter className="flex justify-center space-x-2 lg:justify-end">
                 <Button onClick={handleEdit}>
-                    <i className="ri-pencil-line"></i>
-                    <span className="ml-2">Edit</span>
+                    <i className="ri-pencil-line ri-lg"></i>
+                    <span className="ml-2 hidden xl:block">Edit</span>
                 </Button>
 
                 <Button
                     variant="destructive"
                     onClick={() => removeProduct(product.id)}
                 >
-                    <i className="ri-delete-bin-line"></i>
-                    <span className="ml-2">Delete</span>
+                    <i className="ri-delete-bin-line ri-lg"></i>
+                    <span className="ml-2 hidden xl:block">Delete</span>
                 </Button>
             </CardFooter>
         </Card>

@@ -7,9 +7,7 @@ import { Button } from './components/ui/button';
 
 export default function App() {
     const { products, getProducts } = useProductStore((state) => state);
-    const { setOpen, setProduct } = useProductFormStore(
-        (state) => state,
-    );
+    const { setOpen, setProduct } = useProductFormStore((state) => state);
     const [loading, setLoading] = useState(false);
 
     const getData = async () => {
@@ -25,12 +23,14 @@ export default function App() {
     }, []);
 
     return (
-        <main className="flex min-h-screen w-screen p-16">
+        <main className="flex min-h-screen w-screen p-4 md:p-8 lg:p-16">
             <ProductDialog onClose={getData} />
 
             <div className="container w-5/6">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold">Your Products</h1>
+                <div className="flex flex-col items-center justify-between gap-4 lg:flex-row">
+                    <h1 className="text-center text-3xl font-bold">
+                        Your Products
+                    </h1>
 
                     <Button
                         variant="success"
