@@ -9,12 +9,17 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Button } from './ui/button';
+import useProductStore from '@/stores/product';
 
 interface ProductItemProps {
-    product: Product;
+    product: {
+        id: string;
+    } & Product;
 }
 
 export default function ProductItem({ product }: ProductItemProps) {
+    const deleteProduct = useProductStore((state) => state.removeProduct);
+
     return (
         <Card>
             <CardHeader>
@@ -35,7 +40,10 @@ export default function ProductItem({ product }: ProductItemProps) {
                     <span className="ml-2">Edit</span>
                 </Button>
 
-                <Button variant="destructive">
+                <Button
+                    variant="destructive"
+                    onClick={() => deleteProduct(product.id)}
+                >
                     <i className="ri-delete-bin-line"></i>
                     <span className="ml-2">Delete</span>
                 </Button>

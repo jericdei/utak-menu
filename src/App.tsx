@@ -1,21 +1,20 @@
-import { get, ref } from 'firebase/database';
-import { db } from './firebase';
 import { useEffect, useState } from 'react';
 import ProductDialog from './components/product-dialog-form';
 import ProductList from './components/product-list';
-import { Product } from '.';
 import SkeletonCards from './components/skeleton-cards';
+import useProductStore from './stores/product';
 
 export default function App() {
-    const [menuItems, setMenuItems] = useState<Record<string, Product>>({});
+    const products = useProductStore((state) => state.products);
+    const getProducts = useProductStore((state) => state.getProducts);
+
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const getData = async () => {
         setLoading(true);
 
-        const res = await get(ref(db, 'menuItems'));
-        setMenuItems(res.val());
+        await getProducts();
 
         setLoading(false);
     };
@@ -28,7 +27,7 @@ export default function App() {
         <main className="flex min-h-screen w-screen p-16">
             <div className="container w-5/6">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold">Your Menu</h1>
+                    <h1 className="text-3xl font-bold">Your Products</h1>
 
                     <ProductDialog
                         open={dialogOpen}
@@ -39,10 +38,20 @@ export default function App() {
 
                 {loading ? (
                     <SkeletonCards length={8} />
-                ) : !menuItems ? (
-                    <p className="p-16 text-center">No menu items.</p>
+                ) : products.length === 0 ? (
+                    <div className="p-64">
+                        <p className="text-center">
+                            You don't have any products yet.{' '}
+                            <span
+                                className="cursor-pointer underline"
+                                onClick={() => setDialogOpen(true)}
+                            >
+                                Add a new one!
+                            </span>
+                        </p>
+                    </div>
                 ) : (
-                    <ProductList products={menuItems} />
+                    <ProductList products={products} />
                 )}
             </div>
         </main>

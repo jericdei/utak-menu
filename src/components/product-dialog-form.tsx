@@ -11,6 +11,7 @@ import MultiInput from './multi-input';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import useProductStore from '@/stores/product';
 import {
     Form,
     FormControl,
@@ -19,8 +20,6 @@ import {
     FormLabel,
     FormMessage,
 } from './ui/form';
-import { ref, set } from 'firebase/database';
-import { db } from '@/firebase';
 
 interface ProductDialogProps {
     open: boolean;
@@ -33,6 +32,8 @@ export default function ProductDialog({
     setOpen,
     onClose,
 }: ProductDialogProps) {
+    const addProduct = useProductStore((state) => state.addProduct);
+
     const formSchema = z.object({
         name: z.string().min(1, { message: 'Name is required' }),
         category: z.string().min(1, { message: 'Category is required' }),
@@ -57,16 +58,15 @@ export default function ProductDialog({
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const id = Math.random().toString(36).substring(2, 9);
 
-        await set(ref(db, `menuItems/${id}`), values);
+        await addProduct(id, values);
 
         form.reset();
-
         setOpen(false);
         onClose();
     }
 
     return (
-        <Dialog open={open}>
+        <Dialog open={open} onOpenChange={(e) => setOpen(e)}>
             <DialogTrigger asChild>
                 <Button variant="success" onClick={() => setOpen(true)}>
                     <i className="ri-add-large-fill"></i>
