@@ -9,7 +9,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Button } from './ui/button';
-import useProductStore from '@/stores/product';
+import { useProductFormStore, useProductStore } from '@/stores/product';
 
 interface ProductItemProps {
     product: {
@@ -18,7 +18,13 @@ interface ProductItemProps {
 }
 
 export default function ProductItem({ product }: ProductItemProps) {
-    const deleteProduct = useProductStore((state) => state.removeProduct);
+    const { removeProduct } = useProductStore((state) => state);
+    const { setOpen, setProduct } = useProductFormStore((state) => state);
+
+    function handleEdit() {
+        setProduct(product);
+        setOpen(true);
+    }
 
     return (
         <Card>
@@ -35,14 +41,14 @@ export default function ProductItem({ product }: ProductItemProps) {
             </CardContent>
 
             <CardFooter className="justify-end space-x-2">
-                <Button>
+                <Button onClick={handleEdit}>
                     <i className="ri-pencil-line"></i>
                     <span className="ml-2">Edit</span>
                 </Button>
 
                 <Button
                     variant="destructive"
-                    onClick={() => deleteProduct(product.id)}
+                    onClick={() => removeProduct(product.id)}
                 >
                     <i className="ri-delete-bin-line"></i>
                     <span className="ml-2">Delete</span>

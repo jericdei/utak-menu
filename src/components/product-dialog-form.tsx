@@ -4,14 +4,13 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from './ui/input';
 import MultiInput from './multi-input';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import useProductStore from '@/stores/product';
+import { useProductFormStore, useProductStore } from '@/stores/product';
 import {
     Form,
     FormControl,
@@ -20,21 +19,29 @@ import {
     FormLabel,
     FormMessage,
 } from './ui/form';
+import { useEffect } from 'react';
+import { removePropertyFromObject } from '@/lib/utils';
 
 interface ProductDialogProps {
-    open: boolean;
-    setOpen: (open: boolean) => void;
     onClose: () => void;
 }
 
-export default function ProductDialog({
-    open,
-    setOpen,
-    onClose,
-}: ProductDialogProps) {
-    const addProduct = useProductStore((state) => state.addProduct);
+export default function ProductDialog({ onClose }: ProductDialogProps) {
+    const { addProduct, updateProduct } = useProductStore((state) => state);
+    const { product, open, setOpen } = useProductFormStore((state) => state);
+
+    const defaultValues = {
+        id: null,
+        name: '',
+        category: '',
+        options: [],
+        price: 0,
+        cost: 0,
+        amount: 0,
+    };
 
     const formSchema = z.object({
+        id: z.string().nullable(),
         name: z.string().min(1, { message: 'Name is required' }),
         category: z.string().min(1, { message: 'Category is required' }),
         options: z.array(z.string()),
@@ -43,22 +50,32 @@ export default function ProductDialog({
         amount: z.number().min(1, { message: 'Amount is required' }),
     });
 
+    useEffect(() => {
+        if (product) {
+            form.reset(product);
+
+            return;
+        }
+
+        form.reset(defaultValues);
+    }, [product]);
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
-            name: '',
-            category: '',
-            options: [],
-            price: 0,
-            cost: 0,
-            amount: 0,
-        },
+        defaultValues,
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        const id = Math.random().toString(36).substring(2, 9);
+        if (values.id) {
+            await updateProduct(
+                values.id,
+                removePropertyFromObject(values, 'id'),
+            );
+        } else {
+            const id = Math.random().toString(36).substring(2, 9);
 
-        await addProduct(id, values);
+            await addProduct(id, values);
+        }
 
         form.reset();
         setOpen(false);
@@ -67,13 +84,6 @@ export default function ProductDialog({
 
     return (
         <Dialog open={open} onOpenChange={(e) => setOpen(e)}>
-            <DialogTrigger asChild>
-                <Button variant="success" onClick={() => setOpen(true)}>
-                    <i className="ri-add-large-fill"></i>
-                    <span className="ml-2">Add Product</span>
-                </Button>
-            </DialogTrigger>
-
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Product Form</DialogTitle>

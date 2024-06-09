@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import ProductDialog from './components/product-dialog-form';
 import ProductList from './components/product-list';
 import SkeletonCards from './components/skeleton-cards';
-import useProductStore from './stores/product';
+import { useProductFormStore, useProductStore } from './stores/product';
+import { Button } from './components/ui/button';
 
 export default function App() {
-    const products = useProductStore((state) => state.products);
-    const getProducts = useProductStore((state) => state.getProducts);
-
-    const [dialogOpen, setDialogOpen] = useState(false);
+    const { products, getProducts } = useProductStore((state) => state);
+    const { setOpen, setProduct, product } = useProductFormStore(
+        (state) => state,
+    );
     const [loading, setLoading] = useState(false);
 
     const getData = async () => {
@@ -25,15 +26,22 @@ export default function App() {
 
     return (
         <main className="flex min-h-screen w-screen p-16">
+            <ProductDialog onClose={getData} />
+
             <div className="container w-5/6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-3xl font-bold">Your Products</h1>
 
-                    <ProductDialog
-                        open={dialogOpen}
-                        setOpen={setDialogOpen}
-                        onClose={getData}
-                    />
+                    <Button
+                        variant="success"
+                        onClick={() => {
+                            setProduct(undefined);
+                            setOpen(true);
+                        }}
+                    >
+                        <i className="ri-add-large-fill"></i>
+                        <span className="ml-2">Add Product</span>
+                    </Button>
                 </div>
 
                 {loading ? (
@@ -44,7 +52,11 @@ export default function App() {
                             You don't have any products yet.{' '}
                             <span
                                 className="cursor-pointer underline"
-                                onClick={() => setDialogOpen(true)}
+                                onClick={() => {
+                                    setProduct(undefined);
+
+                                    setOpen(true);
+                                }}
                             >
                                 Add a new one!
                             </span>

@@ -1,5 +1,5 @@
-import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
+import { initializeApp } from 'firebase/app';
+import { getDatabase } from 'firebase/database';
 
 const {
     VITE_FIREBASE_API_KEY,
